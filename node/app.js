@@ -5,6 +5,9 @@ const port = 3000;
 const app = express();
 const server = http.createServer(app);
 
+const restaurants = require('./src/restaurants/restaurants.index');
+app.use(restaurants);
+
 app.get('/', (req, res) => {
   res.send('Hello world!');
 });
