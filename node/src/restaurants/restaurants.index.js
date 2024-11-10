@@ -1,6 +1,7 @@
 const express = require('express');
-const getByDate = require('./restaurants.service');
+const { getByDate, parseCSV } = require('./restaurants.service.js');
 const app = (module.exports = express());
+const path = require('path');
 
 /**
  * @summary Takes in a datetime and returns list of restaurants open on that datetime
@@ -21,7 +22,11 @@ app.get('/restaurants/open-by-date/:date', async (req, res) => {
 
   const date = req.params.date;
 
-  const results = await getByDate(date);
+  const filePath = path.resolve(__dirname, './restaurants.csv');
+
+  const restaurants = await parseCSV(filePath);
+
+  const results = await getByDate(date, restaurants);
 
   /*
     take in date range
