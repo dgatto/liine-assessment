@@ -7,15 +7,23 @@ const path = require('path');
  * @param date Datetime to check for open restaurants
  * @returns List of restaurants that meet datetime criteria
  */
-const getByDate = async (date) => {
+async function getByDate(date) {
   const filePath = path.resolve(__dirname, './restaurants.csv');
 
   const results = await parseCSV(filePath);
 
-  console.log(results);
+  return true;
+
+  //   for (restaurant of results) {
+  //     for ()
+  //       console.log(restaurant['Restaurant Name']);
+  //       console.log(restaurant.Hours);
+  //   }
+
+  //   //   console.log(results);
 
   return results;
-};
+}
 
 /**
  * @param filePath Filepath of the CSV to be parsed
@@ -38,4 +46,6 @@ const parseCSV = (filePath) => {
   });
 };
 
-module.exports = getByDate;
+module.exports = {
+  getByDate,
+};
