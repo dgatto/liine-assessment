@@ -1,5 +1,17 @@
 const { getByDate } = require('./restaurants.service.js');
 
+test('returns empty list when no criteria are met'),
+  async () => {
+    const data = [
+      {
+        'Restaurant Name': 'Morgan St Food Hall',
+        Hours: 'Mon-Sun 11 am - 9:30 pm',
+      },
+    ];
+
+    expect(await getByDate(new Date('2024-11-10T06:30:00'), data)).toBe([]);
+  };
+
 test('returns expected list when given date in format of Day1-Day2 Time1 - Time2', async () => {
   const data = [
     {
@@ -8,7 +20,9 @@ test('returns expected list when given date in format of Day1-Day2 Time1 - Time2
     },
   ];
 
-  expect(await getByDate(new Date('***'), data)).toBe([]);
+  expect(await getByDate(new Date('2024-11-10T11:30:00'), data)).toBe([
+    'Morgan St Food Hall',
+  ]);
 });
 
 test('returns expected list when given date in format of Day1-Day2, Day3 Time1 - Time2', async () => {
@@ -30,7 +44,9 @@ test('returns expected list when given date in format of Day1-Day2, Day3 Time1 -
     },
   ];
 
-  expect(await getByDate(new Date('***'), data)).toBe([]);
+  expect(await getByDate(new Date('2024-11-10T11:30:00'), data)).toBe([
+    "Beasley's Chicken + Honey",
+  ]);
 });
 
 test('returns expected list when given date in format of Day1-Day2, Day3 Time1 - Time2 / Day-Day5 Time1 - Time2', async () => {
@@ -41,7 +57,9 @@ test('returns expected list when given date in format of Day1-Day2, Day3 Time1 -
     },
   ];
 
-  expect(await getByDate(new Date('***'), data)).toBe([]);
+  expect(await getByDate(new Date('2024-11-10T11:30:00'), data)).toBe([
+    'Garland',
+  ]);
 });
 
 // ...and more at larger datasets
