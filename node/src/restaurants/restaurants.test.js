@@ -1,6 +1,6 @@
 const { getByDate } = require('./restaurants.service.js');
 
-test.only('returns empty list when no criteria are met', async () => {
+test('returns empty list when no criteria are met', async () => {
   const data = [
     {
       'Restaurant Name': 'Empty List',

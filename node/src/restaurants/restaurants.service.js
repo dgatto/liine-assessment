@@ -30,7 +30,6 @@ async function getByDate(date, restaurantsObj) {
   const restaurantNames = [];
 
   for (restaurant of restaurantsObj) {
-    const inputDateDayIndex = indexToDays[date.getDay()];
     const datetimeSplit = restaurant['Hours'].split(' ');
 
     const days = datetimeSplit[0];
@@ -41,13 +40,19 @@ async function getByDate(date, restaurantsObj) {
 
     const lowerDayBoundIndex = daysToIndex[lowerDayBound];
     const upperDayBoundIndex = daysToIndex[upperDayBound];
+    const requestedDayIndex = date.getDay();
 
-    if (lowerDayBoundIndex > upperDayBoundIndex)
+    if (lowerDayBoundIndex > upperDayBoundIndex) {
       restaurantNames.push(restaurant['Restaurant Name']);
+      continue;
+    }
 
-    // if (date.getDay() > ) {
-    //   return [restaurant['Restaurant Name']];
-    // }
+    if (
+      lowerDayBoundIndex < requestedDayIndex &&
+      requestedDayIndex < upperDayBoundIndex
+    ) {
+      return [restaurant['Restaurant Name']];
+    }
   }
 
   return restaurantNames;
