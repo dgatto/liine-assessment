@@ -10,17 +10,7 @@ const path = require('path');
  * @
  */
 app.get('/restaurants/open-by-date/:date', async (req, res) => {
-  const daysToIndex = {
-    Mon: 0,
-    Tue: 1,
-    Wed: 2,
-    Thu: 3,
-    Fri: 4,
-    Sat: 5,
-    Sun: 6,
-  };
-
-  const date = req.params.date;
+  const date = new Date(req.params.date);
 
   const filePath = path.resolve(__dirname, './restaurants.csv');
 
@@ -69,9 +59,9 @@ app.get('/restaurants/open-by-date/:date', async (req, res) => {
             let names = [];
             for range in ranges { // Mon-Sun 11 am - 12 am  
 
-                // need to compensate for when a range has a comma, ex: 'Mon-Tues, Thursday 11 am - 5 pm'
+                // need to compensate for when a range has a comma, ex: 'Mon-Tues, Thu 11 am - 5 pm'
 
-                const checkCommaSplit = range.split(','); // ['Mon-Sun 11 am - 12 am']
+                const checkCommaSplit = range.split(','); // ['Mon-Tues', ' Thu, 11 am - 12 am' ]
                 if (checkCommaSplit.length > 1) {
                     // do stuff for this use case
                     continue;

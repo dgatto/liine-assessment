@@ -1,16 +1,30 @@
 const { getByDate } = require('./restaurants.service.js');
 
-test('returns empty list when no criteria are met'),
-  async () => {
-    const data = [
-      {
-        'Restaurant Name': 'Morgan St Food Hall',
-        Hours: 'Mon-Sun 11 am - 9:30 pm',
-      },
-    ];
+test.only('returns empty list when no criteria are met', async () => {
+  const data = [
+    {
+      'Restaurant Name': 'Empty List',
+      Hours: 'Mon-Thu 11 am - 9:30 pm',
+    },
+  ];
 
-    expect(await getByDate(new Date('2024-11-10T06:30:00'), data)).toBe([]);
-  };
+  expect(await getByDate(new Date('2024-11-10T06:30:00'), data)).toStrictEqual(
+    []
+  );
+});
+
+test.only('returns expected list when the restaurant is open the entire week (Mon-Sun)', async () => {
+  const data = [
+    {
+      'Restaurant Name': 'Open All Week',
+      Hours: 'Mon-Sun 11 am - 9:30 pm',
+    },
+  ];
+
+  expect(await getByDate(new Date('2024-11-10T06:30:00'), data)).toStrictEqual([
+    'Open All Week',
+  ]);
+});
 
 test('returns expected list when given date in format of Day1-Day2 Time1 - Time2', async () => {
   const data = [

@@ -1,21 +1,56 @@
 const fs = require('fs');
 const parse = require('csv-parser');
 
+const daysToIndex = {
+  Sun: 0,
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+};
+
+const indexToDays = {
+  0: 'Sun',
+  1: 'Mon',
+  2: 'Tue',
+  3: 'Wed',
+  4: 'Thu',
+  5: 'Fri',
+  6: 'Sat',
+};
+
 /**
  * @summary Takes in a datetime and returns list of restaurants open on that datetime.
  * @param date Datetime to check for open restaurants
  * @returns List of restaurants that meet datetime criteria
  */
 async function getByDate(date, restaurantsObj) {
-  //   for (restaurant of results) {
-  //     for ()
-  //       console.log(restaurant['Restaurant Name']);
-  //       console.log(restaurant.Hours);
-  //   }
+  const restaurantNames = [];
 
-  //   //   console.log(results);
+  for (restaurant of restaurantsObj) {
+    const inputDateDayIndex = indexToDays[date.getDay()];
+    const datetimeSplit = restaurant['Hours'].split(' ');
 
-  return false;
+    const days = datetimeSplit[0];
+
+    const split = days.split('-');
+    const lowerDayBound = split[0];
+    const upperDayBound = split[1];
+
+    const lowerDayBoundIndex = daysToIndex[lowerDayBound];
+    const upperDayBoundIndex = daysToIndex[upperDayBound];
+
+    if (lowerDayBoundIndex > upperDayBoundIndex)
+      restaurantNames.push(restaurant['Restaurant Name']);
+
+    // if (date.getDay() > ) {
+    //   return [restaurant['Restaurant Name']];
+    // }
+  }
+
+  return restaurantNames;
 }
 
 /**
