@@ -27,6 +27,7 @@ const indexToDays = {
  * @returns List of restaurants that meet datetime criteria
  */
 async function getByDate(date, restaurantsObj) {
+  // Would it have just been easier to turn everything in to a Date and use that class to compare their epoch instances? I still would have a lot of string manipulation logic either way.
   function timeStringToDecimal(time, modifier) {
     let [hours, minutes] = time.split(':').map(Number); // Convert hours and minutes to numbers
 
@@ -78,17 +79,25 @@ async function getByDate(date, restaurantsObj) {
       let lowerTimeBound = [datetimeSplit[1], datetimeSplit[2]];
       let upperTimeBound = [datetimeSplit[4], datetimeSplit[5]];
 
-      if (lowerTimeBound) {
-      }
-
       const lowerTimeBoundAsNumber = timeStringToDecimal(
         lowerTimeBound[0],
         lowerTimeBound[1]
       );
 
-      console.log(lowerTimeBoundAsNumber);
+      const upperTimeBoundAsNumber = timeStringToDecimal(
+        upperTimeBound[0],
+        upperTimeBound[1]
+      );
 
-      return [restaurant['Restaurant Name']];
+      const requestedTime = date.getHours() + date.getMinutes() / 60;
+
+      if (
+        lowerTimeBoundAsNumber < requestedTime &&
+        requestedTime < upperTimeBoundAsNumber
+      ) {
+        restaurantNames.push(restaurant['Restaurant Name']);
+        continue;
+      }
     }
   }
 

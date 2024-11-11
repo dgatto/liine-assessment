@@ -26,7 +26,20 @@ test('returns expected list when the restaurant is open the entire week (Mon-Sun
   ]);
 });
 
-test.only('returns expected list when given date in format of Day1-Day2 Time1 - Time2', async () => {
+test('does not return data point if not within time range', async () => {
+  const data = [
+    {
+      'Restaurant Name': 'Morgan St Food Hall',
+      Hours: 'Mon-Thu 11 am - 9:30 pm',
+    },
+  ];
+
+  expect(await getByDate(new Date('2024-11-12T10:30:00'), data)).toStrictEqual(
+    []
+  );
+});
+
+test('returns expected list when given date in format of Day1-Day2 Time1 - Time2', async () => {
   const data = [
     {
       'Restaurant Name': 'Morgan St Food Hall',
