@@ -49,10 +49,10 @@ async function getByDate(date, restaurantsObj) {
 
     return decimalTime;
   }
+  let restaurantNames = [];
 
   for (restaurant of restaurantsObj) {
     let ranges = [];
-    let restaurantNames = [];
     if (restaurant['Hours'].includes('/')) {
       let r = restaurant['Hours'].split('/');
 
@@ -115,18 +115,29 @@ async function getByDate(date, restaurantsObj) {
 
         const requestedTime = date.getHours() + date.getMinutes() / 60;
 
-        if (
-          lowerTimeBoundAsNumber < requestedTime &&
-          requestedTime < upperTimeBoundAsNumber
-        ) {
+        const isWithinSameDayRange =
+          lowerTimeBoundAsNumber < upperTimeBoundAsNumber &&
+          requestedTime >= lowerTimeBoundAsNumber &&
+          requestedTime < upperTimeBoundAsNumber;
+
+        const isWithinOvernightRange =
+          lowerTimeBoundAsNumber > upperTimeBoundAsNumber &&
+          (requestedTime >= lowerTimeBoundAsNumber ||
+            requestedTime < upperTimeBoundAsNumber);
+
+        const isOpenNextDay =
+          lowerTimeBoundAsNumber > upperTimeBoundAsNumber &&
+          requestedTime > upperTimeBoundAsNumber;
+
+        if (isWithinSameDayRange || isWithinOvernightRange || isOpenNextDay) {
           restaurantNames.push(restaurant['Restaurant Name']);
           continue;
         }
       }
     }
-
-    return restaurantNames;
   }
+
+  return restaurantNames;
 }
 
 /**
