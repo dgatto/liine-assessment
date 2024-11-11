@@ -11,23 +11,21 @@ const daysToIndex = {
   Sat: 6,
 };
 
-const indexToDays = {
-  0: 'Sun',
-  1: 'Mon',
-  2: 'Tue',
-  3: 'Wed',
-  4: 'Thu',
-  5: 'Fri',
-  6: 'Sat',
-};
-
 /**
  * @summary Takes in a datetime and returns list of restaurants open on that datetime.
  * @param date Datetime to check for open restaurants
  * @returns List of restaurants that meet datetime criteria
  */
 async function getByDate(date, restaurantsObj) {
-  // Would it have just been easier to turn everything in to a Date and use that class to compare their epoch instances? I still would have a lot of string manipulation logic either way.
+  const restaurantNames = [];
+  const requestedDayIndex = date.getDay();
+
+  /**
+   * @summary Converts a given time into it's decimal format. ex: 11:30 -> 11.5
+   * @param {string} time The time to convert
+   * @param {string} modifier Whether it's an AM or PM time
+   * @returns
+   */
   function timeStringToDecimal(time, modifier) {
     let [hours, minutes] = time.split(':').map(Number); // Convert hours and minutes to numbers
 
@@ -49,25 +47,65 @@ async function getByDate(date, restaurantsObj) {
 
     return decimalTime;
   }
-  let restaurantNames = [];
 
+  /**
+   * @summary Takes in the decimal time range for the hours a restaurant is open and see if the requestedTime is within bounds, taking in to account overnight openings.
+   * @param {number} lowerTimeBoundAsNumber
+   * @param {number} upperTimeBoundAsNumber
+   * @param {number} requestedTime Decimal representation of requested time for openings.
+   * @returns
+   */
+  function requestedTimeWithinBounds(
+    lowerTimeBoundAsNumber,
+    upperTimeBoundAsNumber,
+    requestedTime
+  ) {
+    // ex: 11am-11pm
+    const isWithinSameDayRange =
+      lowerTimeBoundAsNumber < upperTimeBoundAsNumber &&
+      requestedTime >= lowerTimeBoundAsNumber &&
+      requestedTime < upperTimeBoundAsNumber;
+
+    // ex: 10pm-12:15am
+    const isWithinOvernightRange =
+      lowerTimeBoundAsNumber > upperTimeBoundAsNumber &&
+      (requestedTime >= lowerTimeBoundAsNumber ||
+        requestedTime < upperTimeBoundAsNumber);
+
+    // ex: 10pm-3am
+    const isOpenNextDay =
+      lowerTimeBoundAsNumber > upperTimeBoundAsNumber &&
+      requestedTime > upperTimeBoundAsNumber;
+
+    if (isWithinSameDayRange || isWithinOvernightRange || isOpenNextDay) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Loop through each restaurant and parse their day/time to find if there is a match with the given day/time.
   for (restaurant of restaurantsObj) {
     let ranges = [];
-    if (restaurant['Hours'].includes('/')) {
-      let r = restaurant['Hours'].split('/');
 
-      ranges = r.map((x) => x.trim());
+    if (restaurant['Hours'].includes('/')) {
+      let segments = restaurant['Hours'].split('/');
+
+      ranges = segments.map((x) => x.trim());
     } else {
       ranges.push(restaurant['Hours']);
     }
 
     for (let i = 0; i < ranges.length; i++) {
+      // Split a day/time range in to it's separate pieces (ex: Mon-Tue 11am - 5 pm)
+
       const datetimeSplit = ranges[i].split(' ');
 
       const days = datetimeSplit[0];
 
       const split = days.split('-');
 
+      // Create upper/lower day and time bounds after splitting up the range.
       const lowerDayBound = split[0];
       const upperDayBound = split[split.length === 1 ? 0 : 1];
 
@@ -77,8 +115,12 @@ async function getByDate(date, restaurantsObj) {
         individualDayIndex,
         newStr;
 
+      // Map the day name to their day index for comparison against index from `requestedDayIndex`
+      // Split the times in to their individual time and modifier pieces (ex: ['11', 'am'])
       if (upperDayBound.includes(',')) {
         newStr = upperDayBound.replaceAll(',', '');
+
+        // If we're just dealing with a range on one day, we'll call that out to check later
         individualDay = datetimeSplit[1];
         individualDayIndex = daysToIndex[individualDay];
 
@@ -89,47 +131,50 @@ async function getByDate(date, restaurantsObj) {
         upperTimeBound = [datetimeSplit[4], datetimeSplit[5]];
       }
 
+      // Get indexes of day bounds from named day -> index map
       const lowerDayBoundIndex = daysToIndex[lowerDayBound];
       const upperDayBoundIndex = daysToIndex[newStr ? newStr : upperDayBound];
-      const requestedDayIndex = date.getDay();
 
+      // Turn time of day in to decimal format
+      const lowerTimeBoundAsNumber = timeStringToDecimal(
+        lowerTimeBound[0],
+        lowerTimeBound[1]
+      );
+
+      const upperTimeBoundAsNumber = timeStringToDecimal(
+        upperTimeBound[0],
+        upperTimeBound[1]
+      );
+
+      const requestedTimeInDecimals = date.getHours() + date.getMinutes() / 60;
+
+      // Check if the open times for the week wrap, such as "Mon-Sun". In that case, it's open every day.
       if (lowerDayBoundIndex > upperDayBoundIndex) {
-        restaurantNames.push(restaurant['Restaurant Name']);
-        continue;
+        if (
+          requestedTimeWithinBounds(
+            lowerTimeBoundAsNumber,
+            upperTimeBoundAsNumber,
+            requestedTimeInDecimals
+          )
+        ) {
+          restaurantNames.push(restaurant['Restaurant Name']);
+          continue;
+        }
       }
 
+      // Check if requested day/time is within day bounds, then time bounds.
       if (
         (lowerDayBoundIndex <= requestedDayIndex &&
           requestedDayIndex <= upperDayBoundIndex) ||
         requestedDayIndex === individualDayIndex
       ) {
-        const lowerTimeBoundAsNumber = timeStringToDecimal(
-          lowerTimeBound[0],
-          lowerTimeBound[1]
-        );
-
-        const upperTimeBoundAsNumber = timeStringToDecimal(
-          upperTimeBound[0],
-          upperTimeBound[1]
-        );
-
-        const requestedTime = date.getHours() + date.getMinutes() / 60;
-
-        const isWithinSameDayRange =
-          lowerTimeBoundAsNumber < upperTimeBoundAsNumber &&
-          requestedTime >= lowerTimeBoundAsNumber &&
-          requestedTime < upperTimeBoundAsNumber;
-
-        const isWithinOvernightRange =
-          lowerTimeBoundAsNumber > upperTimeBoundAsNumber &&
-          (requestedTime >= lowerTimeBoundAsNumber ||
-            requestedTime < upperTimeBoundAsNumber);
-
-        const isOpenNextDay =
-          lowerTimeBoundAsNumber > upperTimeBoundAsNumber &&
-          requestedTime > upperTimeBoundAsNumber;
-
-        if (isWithinSameDayRange || isWithinOvernightRange || isOpenNextDay) {
+        if (
+          requestedTimeWithinBounds(
+            lowerTimeBoundAsNumber,
+            upperTimeBoundAsNumber,
+            requestedTimeInDecimals
+          )
+        ) {
           restaurantNames.push(restaurant['Restaurant Name']);
           continue;
         }

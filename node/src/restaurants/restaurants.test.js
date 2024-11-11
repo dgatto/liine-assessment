@@ -21,7 +21,7 @@ test('returns expected list when the restaurant is open the entire week (Mon-Sun
     },
   ];
 
-  expect(await getByDate(new Date('2024-11-10T06:30:00'), data)).toStrictEqual([
+  expect(await getByDate(new Date('2024-11-10T11:30:00'), data)).toStrictEqual([
     'Open All Week',
   ]);
 });

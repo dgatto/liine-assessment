@@ -19,8 +19,9 @@ app.get('/restaurants/open-by-date/:date', async (req, res) => {
   const results = await getByDate(date, restaurants);
 
   res.send(results);
+});
 
-  /*
+/*
     take in date range
     loop through all results
 
@@ -102,4 +103,3 @@ app.get('/restaurants/open-by-date/:date', async (req, res) => {
     put names in list
     return list
   */
-});
