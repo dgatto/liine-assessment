@@ -27,6 +27,28 @@ const indexToDays = {
  * @returns List of restaurants that meet datetime criteria
  */
 async function getByDate(date, restaurantsObj) {
+  function timeStringToDecimal(time, modifier) {
+    let [hours, minutes] = time.split(':').map(Number); // Convert hours and minutes to numbers
+
+    // Convert to 24-hour format if necessary
+    if (modifier === 'pm' && hours !== 12) {
+      hours += 12;
+    } else if (modifier === 'am' && hours === 12) {
+      hours = 0;
+    }
+
+    let decimalTime;
+
+    // Calculate decimal time
+    if (minutes) {
+      decimalTime = hours + minutes / 60;
+    } else {
+      decimalTime = hours;
+    }
+
+    return decimalTime;
+  }
+
   const restaurantNames = [];
 
   for (restaurant of restaurantsObj) {
@@ -38,8 +60,10 @@ async function getByDate(date, restaurantsObj) {
     const lowerDayBound = split[0];
     const upperDayBound = split[1];
 
+    const newStr = upperDayBound.replaceAll(',', '');
+
     const lowerDayBoundIndex = daysToIndex[lowerDayBound];
-    const upperDayBoundIndex = daysToIndex[upperDayBound];
+    const upperDayBoundIndex = daysToIndex[newStr];
     const requestedDayIndex = date.getDay();
 
     if (lowerDayBoundIndex > upperDayBoundIndex) {
@@ -51,6 +75,19 @@ async function getByDate(date, restaurantsObj) {
       lowerDayBoundIndex < requestedDayIndex &&
       requestedDayIndex < upperDayBoundIndex
     ) {
+      let lowerTimeBound = [datetimeSplit[1], datetimeSplit[2]];
+      let upperTimeBound = [datetimeSplit[4], datetimeSplit[5]];
+
+      if (lowerTimeBound) {
+      }
+
+      const lowerTimeBoundAsNumber = timeStringToDecimal(
+        lowerTimeBound[0],
+        lowerTimeBound[1]
+      );
+
+      console.log(lowerTimeBoundAsNumber);
+
       return [restaurant['Restaurant Name']];
     }
   }

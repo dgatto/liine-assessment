@@ -13,7 +13,7 @@ test('returns empty list when no criteria are met', async () => {
   );
 });
 
-test.only('returns expected list when the restaurant is open the entire week (Mon-Sun)', async () => {
+test('returns expected list when the restaurant is open the entire week (Mon-Sun)', async () => {
   const data = [
     {
       'Restaurant Name': 'Open All Week',
@@ -26,15 +26,15 @@ test.only('returns expected list when the restaurant is open the entire week (Mo
   ]);
 });
 
-test('returns expected list when given date in format of Day1-Day2 Time1 - Time2', async () => {
+test.only('returns expected list when given date in format of Day1-Day2 Time1 - Time2', async () => {
   const data = [
     {
       'Restaurant Name': 'Morgan St Food Hall',
-      Hours: 'Mon-Sun 11 am - 9:30 pm',
+      Hours: 'Mon-Thu 11 am - 9:30 pm',
     },
   ];
 
-  expect(await getByDate(new Date('2024-11-10T11:30:00'), data)).toBe([
+  expect(await getByDate(new Date('2024-11-12T11:30:00'), data)).toStrictEqual([
     'Morgan St Food Hall',
   ]);
 });
@@ -47,7 +47,7 @@ test('returns expected list when given date in format of Day1-Day2, Day3 Time1 -
     },
   ];
 
-  expect(await getByDate(new Date('***'), data)).toBe([]);
+  expect(await getByDate(new Date('***'), data)).toStrictEqual([]);
 });
 
 test('returns expected list when given date in format of Day1-Day2, Day3 Time1 - Time2 / Day4 Time1 - Time2', async () => {
@@ -58,7 +58,7 @@ test('returns expected list when given date in format of Day1-Day2, Day3 Time1 -
     },
   ];
 
-  expect(await getByDate(new Date('2024-11-10T11:30:00'), data)).toBe([
+  expect(await getByDate(new Date('2024-11-10T11:30:00'), data)).toStrictEqual([
     "Beasley's Chicken + Honey",
   ]);
 });
@@ -71,9 +71,9 @@ test('returns expected list when given date in format of Day1-Day2, Day3 Time1 -
     },
   ];
 
-  expect(await getByDate(new Date('2024-11-10T11:30:00'), data)).toBe([
+  expect(await getByDate(new Date('2024-11-10T11:30:00'), data)).toStrictEqual([
     'Garland',
   ]);
 });
 
-// ...and more at larger datasets
+// ...and more at larger datasets, likely integration tests
