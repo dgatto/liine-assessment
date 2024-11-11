@@ -87,7 +87,7 @@ test.only('returns expected list when given date in format of Day1-Day2, Day3 Ti
     },
   ];
 
-  expect(await getByDate(new Date('2024-11-T23:30:00'), data)).toStrictEqual([
+  expect(await getByDate(new Date('2024-11-10T23:30:00'), data)).toStrictEqual([
     'Garland',
   ]);
 });
