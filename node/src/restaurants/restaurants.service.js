@@ -50,72 +50,83 @@ async function getByDate(date, restaurantsObj) {
     return decimalTime;
   }
 
-  const restaurantNames = [];
-
   for (restaurant of restaurantsObj) {
-    const datetimeSplit = restaurant['Hours'].split(' ');
+    let ranges = [];
+    let restaurantNames = [];
+    if (restaurant['Hours'].includes('/')) {
+      let r = restaurant['Hours'].split('/');
 
-    const days = datetimeSplit[0];
-
-    const split = days.split('-');
-    const lowerDayBound = split[0];
-    const upperDayBound = split[1];
-
-    let lowerTimeBound,
-      upperTimeBound,
-      individualDay,
-      individualDayIndex,
-      newStr;
-
-    if (upperDayBound.includes(',')) {
-      newStr = upperDayBound.replaceAll(',', '');
-      individualDay = datetimeSplit[1];
-      individualDayIndex = daysToIndex[individualDay];
-
-      lowerTimeBound = [datetimeSplit[2], datetimeSplit[3]];
-      upperTimeBound = [datetimeSplit[5], datetimeSplit[6]];
+      ranges = r.map((x) => x.trim());
     } else {
-      lowerTimeBound = [datetimeSplit[1], datetimeSplit[2]];
-      upperTimeBound = [datetimeSplit[4], datetimeSplit[5]];
+      ranges.push(restaurant['Hours']);
     }
 
-    const lowerDayBoundIndex = daysToIndex[lowerDayBound];
-    const upperDayBoundIndex = daysToIndex[newStr ? newStr : upperDayBound];
-    const requestedDayIndex = date.getDay();
+    for (let i = 0; i < ranges.length; i++) {
+      const datetimeSplit = ranges[i].split(' ');
 
-    if (lowerDayBoundIndex > upperDayBoundIndex) {
-      restaurantNames.push(restaurant['Restaurant Name']);
-      continue;
-    }
+      const days = datetimeSplit[0];
 
-    if (
-      (lowerDayBoundIndex < requestedDayIndex &&
-        requestedDayIndex < upperDayBoundIndex) ||
-      requestedDayIndex === individualDayIndex
-    ) {
-      const lowerTimeBoundAsNumber = timeStringToDecimal(
-        lowerTimeBound[0],
-        lowerTimeBound[1]
-      );
+      const split = days.split('-');
 
-      const upperTimeBoundAsNumber = timeStringToDecimal(
-        upperTimeBound[0],
-        upperTimeBound[1]
-      );
+      const lowerDayBound = split[0];
+      const upperDayBound = split[split.length === 1 ? 0 : 1];
 
-      const requestedTime = date.getHours() + date.getMinutes() / 60;
+      let lowerTimeBound,
+        upperTimeBound,
+        individualDay,
+        individualDayIndex,
+        newStr;
 
-      if (
-        lowerTimeBoundAsNumber < requestedTime &&
-        requestedTime < upperTimeBoundAsNumber
-      ) {
+      if (upperDayBound.includes(',')) {
+        newStr = upperDayBound.replaceAll(',', '');
+        individualDay = datetimeSplit[1];
+        individualDayIndex = daysToIndex[individualDay];
+
+        lowerTimeBound = [datetimeSplit[2], datetimeSplit[3]];
+        upperTimeBound = [datetimeSplit[5], datetimeSplit[6]];
+      } else {
+        lowerTimeBound = [datetimeSplit[1], datetimeSplit[2]];
+        upperTimeBound = [datetimeSplit[4], datetimeSplit[5]];
+      }
+
+      const lowerDayBoundIndex = daysToIndex[lowerDayBound];
+      const upperDayBoundIndex = daysToIndex[newStr ? newStr : upperDayBound];
+      const requestedDayIndex = date.getDay();
+
+      if (lowerDayBoundIndex > upperDayBoundIndex) {
         restaurantNames.push(restaurant['Restaurant Name']);
         continue;
       }
-    }
-  }
 
-  return restaurantNames;
+      if (
+        (lowerDayBoundIndex <= requestedDayIndex &&
+          requestedDayIndex <= upperDayBoundIndex) ||
+        requestedDayIndex === individualDayIndex
+      ) {
+        const lowerTimeBoundAsNumber = timeStringToDecimal(
+          lowerTimeBound[0],
+          lowerTimeBound[1]
+        );
+
+        const upperTimeBoundAsNumber = timeStringToDecimal(
+          upperTimeBound[0],
+          upperTimeBound[1]
+        );
+
+        const requestedTime = date.getHours() + date.getMinutes() / 60;
+
+        if (
+          lowerTimeBoundAsNumber < requestedTime &&
+          requestedTime < upperTimeBoundAsNumber
+        ) {
+          restaurantNames.push(restaurant['Restaurant Name']);
+          continue;
+        }
+      }
+    }
+
+    return restaurantNames;
+  }
 }
 
 /**
