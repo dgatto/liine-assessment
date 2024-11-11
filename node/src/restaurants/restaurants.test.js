@@ -56,11 +56,13 @@ test('returns expected list when given date in format of Day1-Day2, Day3 Time1 -
   const data = [
     {
       'Restaurant Name': 'Morgan St Food Hall',
-      Hours: 'Mon-Sun 11 am - 9:30 pm',
+      Hours: 'Mon-Thu, Sat 11 am - 9:30 pm',
     },
   ];
 
-  expect(await getByDate(new Date('***'), data)).toStrictEqual([]);
+  expect(await getByDate(new Date('2024-11-09T11:30:00'), data)).toStrictEqual([
+    'Morgan St Food Hall',
+  ]);
 });
 
 test('returns expected list when given date in format of Day1-Day2, Day3 Time1 - Time2 / Day4 Time1 - Time2', async () => {

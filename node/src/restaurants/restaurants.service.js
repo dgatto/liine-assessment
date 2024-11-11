@@ -61,10 +61,26 @@ async function getByDate(date, restaurantsObj) {
     const lowerDayBound = split[0];
     const upperDayBound = split[1];
 
-    const newStr = upperDayBound.replaceAll(',', '');
+    let lowerTimeBound,
+      upperTimeBound,
+      individualDay,
+      individualDayIndex,
+      newStr;
+
+    if (upperDayBound.includes(',')) {
+      newStr = upperDayBound.replaceAll(',', '');
+      individualDay = datetimeSplit[1];
+      individualDayIndex = daysToIndex[individualDay];
+
+      lowerTimeBound = [datetimeSplit[2], datetimeSplit[3]];
+      upperTimeBound = [datetimeSplit[5], datetimeSplit[6]];
+    } else {
+      lowerTimeBound = [datetimeSplit[1], datetimeSplit[2]];
+      upperTimeBound = [datetimeSplit[4], datetimeSplit[5]];
+    }
 
     const lowerDayBoundIndex = daysToIndex[lowerDayBound];
-    const upperDayBoundIndex = daysToIndex[newStr];
+    const upperDayBoundIndex = daysToIndex[newStr ? newStr : upperDayBound];
     const requestedDayIndex = date.getDay();
 
     if (lowerDayBoundIndex > upperDayBoundIndex) {
@@ -73,12 +89,10 @@ async function getByDate(date, restaurantsObj) {
     }
 
     if (
-      lowerDayBoundIndex < requestedDayIndex &&
-      requestedDayIndex < upperDayBoundIndex
+      (lowerDayBoundIndex < requestedDayIndex &&
+        requestedDayIndex < upperDayBoundIndex) ||
+      requestedDayIndex === individualDayIndex
     ) {
-      let lowerTimeBound = [datetimeSplit[1], datetimeSplit[2]];
-      let upperTimeBound = [datetimeSplit[4], datetimeSplit[5]];
-
       const lowerTimeBoundAsNumber = timeStringToDecimal(
         lowerTimeBound[0],
         lowerTimeBound[1]
