@@ -1,6 +1,6 @@
 # python
 
-Barebones Python API made with django that can be run with a Docker container.
+Barebones Python API made with django that can be run within a Docker container.
 
 ## Getting Started
 
