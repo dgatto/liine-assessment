@@ -7,7 +7,6 @@ const path = require('path');
  * @summary Takes in a datetime and returns list of restaurants open on that datetime
  * @param date Datetime to check for open restaurants. Assumed that the client is passing the date in the ISO-8601 format
  * @returns List of restaurants that meet datetime criteria
- * @
  */
 app.get('/restaurants/open-by-date/:date', async (req, res) => {
   const date = new Date(req.params.date);
