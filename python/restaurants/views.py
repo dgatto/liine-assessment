@@ -5,3 +5,6 @@ from django.http import HttpResponse
 
 def index(request):
     return HttpResponse("Hello, world. You're at the restaurant index.")
+
+def restaurants(request):
+    return  HttpResponse("Here's your restaurants! :)")
